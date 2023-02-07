@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { User } from './interface/user.interface';
 
 @Injectable()
@@ -10,7 +10,12 @@ export class UsersService {
   }
 
   getUser(email: string): User {
-    return this.users.filter((user) => user.email === email)[0];
+    const userData = this.users.filter((user) => user.email === email);
+    if (userData && Array.isArray(userData) && userData.length) {
+      return userData[0];
+    } else {
+      throw new HttpException('user not found', HttpStatus.NOT_FOUND);
+    }
   }
 
   createUser(user: User): User {
