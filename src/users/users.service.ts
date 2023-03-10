@@ -9,7 +9,7 @@ export class UsersService {
     return this.users;
   }
 
-  getUser(email: string): User {
+  async getUser(email: string): Promise<User> {
     const userData = this.users.filter((user) => user.email === email);
     if (userData && Array.isArray(userData) && userData.length) {
       return userData[0];
