@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   BadRequestException,
   Body,
@@ -10,21 +11,29 @@ import {
   Req,
   Res,
   UseFilters,
+  UseGuards,
+  UseInterceptors,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { CreateUserDto, UserParamsDto } from './dtos/user.dto';
 import { HttpExceptionFilter } from './filter/http-exception.filter';
+import { AuthGuard } from './guards/auth.guard';
+import { LoggingInterceptor } from './interceptors/logging.interceptor';
 import { User } from './interface/user.interface';
 import { JoiValidationPipe } from './pipes/validation.pipe';
 import { UsersService } from './users.service';
 
 @Controller('users')
+// @UseGuards(AuthGuard) // at controller level
+// @UseInterceptors(LoggingInterceptor) // at controller level
 export class UsersController {
   constructor(private readonly _svc: UsersService) {}
 
   @Get()
+  @UseGuards(new AuthGuard()) // at route level
+  @UseInterceptors(new LoggingInterceptor()) // at route level
   getUsers(): User[] {
     return this._svc.getUsers();
   }

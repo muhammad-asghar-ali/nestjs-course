@@ -1,7 +1,10 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './users/filter/http-exception.filter';
+import { AuthGuard } from './users/guards/auth.guard';
+import { LoggingInterceptor } from './users/interceptors/logging.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -21,6 +24,16 @@ async function bootstrap() {
    * to load exception filter global
    */
   // app.useGlobalFilters(new HttpExceptionFilter());
+
+  /**
+   * to global level guard
+   */
+  // app.useGlobalGuards(new AuthGuard());
+
+  /**
+   * to global level interceptor
+   */
+  // app.useGlobalInterceptors(new LoggingInterceptor());
 
   // middleware pass here
   app.use(Logger);
