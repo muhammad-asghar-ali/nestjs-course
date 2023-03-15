@@ -4,7 +4,7 @@ import {
   NestModule,
   RequestMethod,
 } from '@nestjs/common';
-import { LoggerMiddleware } from './middleware';
+import { LoggerMiddleware } from '../core/middleware';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 

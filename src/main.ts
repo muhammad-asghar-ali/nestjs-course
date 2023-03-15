@@ -2,9 +2,9 @@
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { HttpExceptionFilter } from './users/filter/http-exception.filter';
-import { AuthGuard } from './users/guards/auth.guard';
-import { LoggingInterceptor } from './users/interceptors/logging.interceptor';
+import { HttpExceptionFilter } from './core/filter/http-exception.filter';
+import { AuthGuard } from './core/guards/auth.guard';
+import { LoggingInterceptor } from './core/interceptors/logging.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -36,7 +36,7 @@ async function bootstrap() {
   // app.useGlobalInterceptors(new LoggingInterceptor());
 
   // middleware pass here
-  app.use(Logger);
+  // app.use(Logger);
   await app.listen(3000);
 }
 bootstrap();

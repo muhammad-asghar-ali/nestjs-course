@@ -18,12 +18,12 @@ import {
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { CreateUserDto, UserParamsDto } from './dtos/user.dto';
-import { HttpExceptionFilter } from './filter/http-exception.filter';
-import { AuthGuard } from './guards/auth.guard';
-import { LoggingInterceptor } from './interceptors/logging.interceptor';
+import { AuthGuard } from '../core/guards/auth.guard';
 import { User } from './interface/user.interface';
-import { JoiValidationPipe } from './pipes/validation.pipe';
 import { UsersService } from './users.service';
+import { JoiValidationPipe } from '../core/pipes/validation.pipe';
+import { LoggingInterceptor } from '../core/interceptors/logging.interceptor';
+import { HttpExceptionFilter } from '../core/filter/http-exception.filter';
 
 @Controller('users')
 // @UseGuards(AuthGuard) // at controller level
@@ -40,7 +40,7 @@ export class UsersController {
 
   @Post()
   @UsePipes(new ValidationPipe())
-  // @UsePipes(new JoiValidationPipe())
+  // @UsePipes(new JoiValidationPipe()) // TODO: some error fix in future
   createUser(user: CreateUserDto): User {
     return this._svc.createUser(user);
   }
