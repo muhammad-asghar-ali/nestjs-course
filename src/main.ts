@@ -1,10 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './core/filter/http-exception.filter';
 import { AuthGuard } from './core/guards/auth.guard';
 import { LoggingInterceptor } from './core/interceptors/logging.interceptor';
+import { createDocument } from './swagger/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -37,6 +39,8 @@ async function bootstrap() {
 
   // middleware pass here
   // app.use(Logger);
+  app.setGlobalPrefix('api/v1');
+  SwaggerModule.setup('api', app, createDocument(app));
   await app.listen(3000);
 }
 bootstrap();
