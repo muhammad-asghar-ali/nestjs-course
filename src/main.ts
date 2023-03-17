@@ -6,10 +6,7 @@ import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './core/filter/http-exception.filter';
 import { AuthGuard } from './core/guards/auth.guard';
 import { LoggingInterceptor } from './core/interceptors/logging.interceptor';
-<<<<<<< HEAD
 import { createDocument } from './swagger/swagger';
-=======
->>>>>>> b57bc19df062b061ae54ba00de510da65eab4a43
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
