@@ -14,5 +14,5 @@ export class FeedEntity {
   createdAt: Date;
 
   @Column({ default: '' })
-  bodt: string;
+  body: string;
 }
