@@ -23,6 +23,12 @@ export class FeedService {
     return await this._repe.find();
   }
 
+  public async pagination(take = 10, skip = 0): Promise<FeedPost[]> {
+    return await this._repe.findAndCount({ take, skip }).then(([posts]) => {
+      return <FeedPost[]>posts;
+    });
+  }
+
   public async delete(id: string): Promise<any> {
     return await this._repe.delete({ id });
   }

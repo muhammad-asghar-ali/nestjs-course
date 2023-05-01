@@ -8,6 +8,7 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  Query,
   Res,
 } from '@nestjs/common';
 import { FeedPost } from '../models/post.interface';
@@ -29,8 +30,24 @@ export class FeedController {
   }
 
   @Get()
-  public async all(@Res() res): Promise<FeedPost> {
+  public async all(@Res() res): Promise<FeedPost[]> {
     const result = await this._svc.all();
+
+    return res.status(HttpStatus.OK).json({
+      status: 'OK',
+      message: 'Record get Successfully',
+      data: result,
+    });
+  }
+
+  @Get('pagination')
+  public async pagination(
+    @Query('take') take = 10,
+    @Query('skip') skip = 1,
+    @Res() res,
+  ): Promise<FeedPost[]> {
+    take = take > 20 ? 20 : take;
+    const result = await this._svc.pagination(take, skip);
 
     return res.status(HttpStatus.OK).json({
       status: 'OK',
