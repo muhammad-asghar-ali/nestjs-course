@@ -8,7 +8,10 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+<<<<<<< HEAD
   Query,
+=======
+>>>>>>> 844fd1c868e9fc900fd42b81c96eb1b25fa9096e
   Res,
 } from '@nestjs/common';
 import { FeedPost } from '../models/post.interface';
