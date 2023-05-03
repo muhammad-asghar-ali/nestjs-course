@@ -10,7 +10,12 @@ import {
   Post,
   Query,
   Res,
+  UseGuards,
 } from '@nestjs/common';
+import { Roles } from 'src/auth/decorators/roles.decorators';
+import { JwtGuard } from 'src/auth/guards/jwt.guard';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { Role } from 'src/auth/models/role.enum';
 import { FeedPost } from '../models/post.interface';
 import { FeedService } from '../services/feed.service';
 
@@ -18,6 +23,8 @@ import { FeedService } from '../services/feed.service';
 export class FeedController {
   constructor(private readonly _svc: FeedService) {}
 
+  @Roles(Role.ADMIN)
+  @UseGuards(JwtGuard, RolesGuard)
   @Post()
   public async create(@Body() feed: FeedPost, @Res() res): Promise<FeedPost> {
     const result = await this._svc.create(feed);
