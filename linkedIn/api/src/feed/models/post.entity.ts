@@ -19,5 +19,5 @@ export class FeedEntity {
   body: string;
 
   @ManyToOne(() => UserEntity, (user) => user.feeds)
-  author: UserEntity;
+  author?: UserEntity;
 }
