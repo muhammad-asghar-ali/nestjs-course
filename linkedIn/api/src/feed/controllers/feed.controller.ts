@@ -23,7 +23,7 @@ import { FeedService } from '../services/feed.service';
 export class FeedController {
   constructor(private readonly _svc: FeedService) {}
 
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.PREMIUM)
   @UseGuards(JwtGuard, RolesGuard)
   @Post()
   public async create(@Body() feed: FeedPost, @Res() res): Promise<FeedPost> {
@@ -36,6 +36,8 @@ export class FeedController {
     });
   }
 
+  @Roles(Role.ADMIN, Role.PREMIUM)
+  @UseGuards(JwtGuard, RolesGuard)
   @Get()
   public async all(@Res() res): Promise<FeedPost[]> {
     const result = await this._svc.all();
@@ -77,6 +79,8 @@ export class FeedController {
     });
   }
 
+  @Roles(Role.ADMIN, Role.PREMIUM)
+  @UseGuards(JwtGuard, RolesGuard)
   @Delete(':id')
   public async delete(
     @Param('id', new ParseUUIDPipe()) id: string,
