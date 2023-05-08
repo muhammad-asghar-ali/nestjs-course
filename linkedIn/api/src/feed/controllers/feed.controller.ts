@@ -9,6 +9,7 @@ import {
   Patch,
   Post,
   Query,
+  Req,
   Res,
   UseGuards,
 } from '@nestjs/common';
@@ -27,8 +28,12 @@ export class FeedController {
   @Roles(Role.ADMIN, Role.PREMIUM)
   @UseGuards(JwtGuard, RolesGuard)
   @Post()
-  public async create(@Body() feed: FeedPost, @Res() res): Promise<FeedPost> {
-    const result = await this._svc.create(feed);
+  public async create(
+    @Body() feed: FeedPost,
+    @Req() req,
+    @Res() res,
+  ): Promise<FeedPost> {
+    const result = await this._svc.create(req.user, feed);
 
     return res.status(HttpStatus.CREATED).json({
       status: 'OK',
