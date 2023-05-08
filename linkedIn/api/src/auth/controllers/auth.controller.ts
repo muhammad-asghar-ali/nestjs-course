@@ -12,7 +12,7 @@ export class AuthController {
 
     return res.status(HttpStatus.CREATED).json({
       status: 'OK',
-      message: 'Record Created Successfully',
+      message: 'Record Register Successfully',
       data: result,
     });
   }
@@ -26,7 +26,7 @@ export class AuthController {
 
     return res.status(HttpStatus.CREATED).json({
       status: 'OK',
-      message: 'Record Created Successfully',
+      message: 'Record Login Successfully',
       data: result,
     });
   }
