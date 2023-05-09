@@ -1,16 +1,24 @@
 import {
   Controller,
+  Get,
+  HttpException,
   HttpStatus,
   Post,
+  Request,
   Res,
   UploadedFile,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
+import { join } from 'path';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { JwtGuard } from '../guards/jwt.guard';
-import { User } from '../models/user.interface';
 import { UserService } from '../services/user.service';
+import {
+  isFileExtensionSafe,
+  saveImageToStorage,
+  removeFile,
+} from '../helpers/image-stroage';
 
 @Controller('user')
 export class UserController {
@@ -18,15 +26,54 @@ export class UserController {
 
   @UseGuards(JwtGuard)
   @Post('upload')
-  @UseInterceptors(FileInterceptor('file', {}))
+  @UseInterceptors(FileInterceptor('file', saveImageToStorage))
   public async uploadImage(
     @UploadedFile() file: Express.Multer.File,
+    @Request() req,
     @Res() res,
-  ): Promise<User> {
+  ): Promise<any> {
+    const fileName = file.filename;
+
+    if (!fileName) {
+      throw new HttpException(
+        'File must be a png, jpg/jpeg',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const imagesFolderPath = join(process.cwd(), 'images');
+    const fullImagePath = join(imagesFolderPath + '/' + file.filename);
+
+    const isSafe = await isFileExtensionSafe(fullImagePath);
+
+    if (!isSafe) {
+      throw new HttpException(
+        'File content does not match extension!',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    const userId = req.user.id;
+    const result = await this._svc.updateUserImageById(userId, fileName);
+
+    removeFile(fullImagePath);
+
     return res.status(HttpStatus.CREATED).json({
       status: 'OK',
       message: 'Record Created Successfully',
-      data: null,
+      data: result,
+    });
+  }
+
+  @UseGuards(JwtGuard)
+  @Get('image')
+  public async findImage(@Request() req, @Res() res): Promise<any> {
+    const userId = req.user.id;
+    const result = await this._svc.findImageNameByUserId(userId);
+
+    return res.status(HttpStatus.OK).json({
+      status: 'OK',
+      message: 'Record Get Successfully',
+      data: result,
     });
   }
 }
