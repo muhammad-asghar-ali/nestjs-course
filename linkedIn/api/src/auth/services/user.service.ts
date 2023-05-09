@@ -50,4 +50,21 @@ export class UserService {
     delete user.password;
     return user.imagePath;
   }
+
+  public async updateUserImageById(
+    id: string,
+    imagePath: string,
+  ): Promise<UpdateResult> {
+    const user: User = new UserEntity();
+    user.id = id;
+    user.imagePath = imagePath;
+    return this._repo.update(id, user);
+  }
+
+  public async findImageNameByUserId(id: string): Promise<string> {
+    const user = await this._repo.findOne({ where: { id } });
+
+    delete user.password;
+    return user.imagePath;
+  }
 }

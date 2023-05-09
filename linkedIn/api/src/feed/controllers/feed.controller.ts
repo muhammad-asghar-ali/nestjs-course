@@ -9,7 +9,7 @@ import {
   Patch,
   Post,
   Query,
-  Req,
+  Request,
   Res,
   UseGuards,
 } from '@nestjs/common';
@@ -30,7 +30,7 @@ export class FeedController {
   @Post()
   public async create(
     @Body() feed: FeedPost,
-    @Req() req,
+    @Request() req,
     @Res() res,
   ): Promise<FeedPost> {
     const result = await this._svc.create(req.user, feed);
