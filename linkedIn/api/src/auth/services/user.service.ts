@@ -1,6 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, UpdateResult } from 'typeorm';
+import { FriendRequestEntity } from '../models/friend-request.entity';
 import { UserEntity } from '../models/user.entity';
 import { User } from '../models/user.interface';
 
@@ -9,6 +10,8 @@ export class UserService {
   constructor(
     @InjectRepository(UserEntity)
     private readonly _repo: Repository<UserEntity>,
+    @InjectRepository(FriendRequestEntity)
+    private readonly _repoFriendrequest: Repository<FriendRequestEntity>,
   ) {}
 
   public async findUserById(id: string): Promise<User> {
@@ -40,7 +43,7 @@ export class UserService {
     return updatedUser;
   }
 
-  public async findImageNameByUserI(id: string): Promise<string> {
+  public async findImageNameByUserId(id: string): Promise<string> {
     const user = await this._repo.findOne({ where: { id } });
 
     if (!user) {
@@ -61,10 +64,18 @@ export class UserService {
     return this._repo.update(id, user);
   }
 
-  public async findImageNameByUserId(id: string): Promise<string> {
-    const user = await this._repo.findOne({ where: { id } });
+  public async hasRequestBeenSentOrReceived(
+    creator: User,
+    receiver: User,
+  ): Promise<boolean> {
+    const q = await this._repoFriendrequest.findOne({
+      where: [
+        { creator, receiver },
+        { creator: receiver, receiver: creator },
+      ],
+    });
 
-    delete user.password;
-    return user.imagePath;
+    if (!q) return false;
+    return true;
   }
 }
