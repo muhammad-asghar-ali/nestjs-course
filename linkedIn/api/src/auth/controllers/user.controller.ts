@@ -3,6 +3,8 @@ import {
   Get,
   HttpException,
   HttpStatus,
+  Param,
+  ParseUUIDPipe,
   Post,
   Request,
   Res,
@@ -19,6 +21,7 @@ import {
   saveImageToStorage,
   removeFile,
 } from '../helpers/image-stroage';
+import { User } from '../models/user.class';
 
 @Controller('user')
 export class UserController {
@@ -65,8 +68,39 @@ export class UserController {
   }
 
   @UseGuards(JwtGuard)
+  @Get(':userId')
+  findUserById(
+    @Param('userId', new ParseUUIDPipe()) userId: string,
+    @Res() res,
+  ): Promise<User> {
+    const result = this._svc.findUserById(userId);
+
+    return res.status(HttpStatus.CREATED).json({
+      status: 'OK',
+      message: 'Record Created Successfully',
+      data: result,
+    });
+  }
+
+  @UseGuards(JwtGuard)
   @Get('image')
   public async findImage(@Request() req, @Res() res): Promise<any> {
+    const userId = req.user.id;
+    const result = await this._svc.findImageNameByUserId(userId);
+
+    return res.status(HttpStatus.OK).json({
+      status: 'OK',
+      message: 'Record Get Successfully',
+      data: result,
+    });
+  }
+
+  @UseGuards(JwtGuard)
+  @Get('image-name')
+  public async findUserImageName(
+    @Request() req,
+    @Res() res,
+  ): Promise<{ imageName: string }> {
     const userId = req.user.id;
     const result = await this._svc.findImageNameByUserId(userId);
 
