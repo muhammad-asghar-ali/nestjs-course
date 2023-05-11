@@ -22,6 +22,7 @@ import {
   removeFile,
 } from '../helpers/image-stroage';
 import { User } from '../models/user.class';
+import { FriendRequest } from '../models/friend-request.interface';
 
 @Controller('user')
 export class UserController {
@@ -107,6 +108,22 @@ export class UserController {
     return res.status(HttpStatus.OK).json({
       status: 'OK',
       message: 'Record Get Successfully',
+      data: result,
+    });
+  }
+
+  @UseGuards(JwtGuard)
+  @Post('friend-request/send/:receiverId')
+  public async sendFriendRequest(
+    @Param('receiverId', new ParseUUIDPipe()) receiverId: string,
+    @Request() req,
+    @Res() res,
+  ): Promise<FriendRequest> {
+    const result = await this._svc.sendFriendRequest(receiverId, req.user);
+
+    return res.status(HttpStatus.OK).json({
+      status: 'OK',
+      message: 'Request Send Successfully',
       data: result,
     });
   }

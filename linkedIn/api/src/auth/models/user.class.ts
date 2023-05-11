@@ -3,7 +3,7 @@ import { FeedPost } from '../../feed/models/post.interface';
 import { Role } from './role.enum';
 
 export class User {
-  id?: number;
+  id?: string;
   firstName?: string;
   lastName?: string;
   @IsEmail()

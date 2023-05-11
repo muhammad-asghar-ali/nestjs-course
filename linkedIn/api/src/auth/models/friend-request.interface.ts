@@ -12,7 +12,7 @@ export interface FriendRequestStatus {
 }
 
 export interface FriendRequest {
-  id?: number;
+  id?: string;
   creator?: User;
   receiver?: User;
   status?: FriendRequest_Status;
