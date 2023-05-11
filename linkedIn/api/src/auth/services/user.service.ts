@@ -2,6 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, UpdateResult } from 'typeorm';
 import { FriendRequestEntity } from '../models/friend-request.entity';
+import { FriendRequest } from '../models/friend-request.interface';
 import { UserEntity } from '../models/user.entity';
 import { User } from '../models/user.interface';
 
@@ -77,5 +78,38 @@ export class UserService {
 
     if (!q) return false;
     return true;
+  }
+
+  public async sendFriendRequest(
+    receiverId: string,
+    creator: User,
+  ): Promise<FriendRequest> {
+    if (receiverId === creator.id) {
+      throw new HttpException(
+        'It is not possible to add yourself!',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const receiver = await this.findUserById(receiverId);
+
+    const hasRequestBeenSentOrReceived =
+      await this.hasRequestBeenSentOrReceived(creator, receiver);
+
+    if (hasRequestBeenSentOrReceived) {
+      throw new HttpException(
+        'A friend request has already been sent of received to your account!',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const friendRequest: FriendRequest = {
+      creator,
+      receiver,
+      status: 'pending',
+    };
+
+    const data = await this._repoFriendrequest.save(friendRequest);
+    return data;
   }
 }
