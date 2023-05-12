@@ -2,7 +2,11 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, UpdateResult } from 'typeorm';
 import { FriendRequestEntity } from '../models/friend-request.entity';
-import { FriendRequest } from '../models/friend-request.interface';
+import {
+  FriendRequest,
+  FriendRequestStatus,
+  FriendRequest_Status,
+} from '../models/friend-request.interface';
 import { UserEntity } from '../models/user.entity';
 import { User } from '../models/user.interface';
 
@@ -111,5 +115,31 @@ export class UserService {
 
     const data = await this._repoFriendrequest.save(friendRequest);
     return data;
+  }
+
+  public async getFriendRequestStatus(
+    receiverId: string,
+    currentUser: User,
+  ): Promise<FriendRequestStatus> {
+    const receiver = await this.findUserById(receiverId);
+
+    if (!receiver) {
+      throw new HttpException('user not found', HttpStatus.BAD_REQUEST);
+    }
+
+    const friendRequest = await this._repoFriendrequest.findOne({
+      where: [
+        { creator: currentUser, receiver: receiver },
+        { creator: receiver, receiver: currentUser },
+      ],
+      relations: ['creator', 'receiver'],
+    });
+
+    if (friendRequest?.receiver.id === currentUser.id) {
+      return {
+        status: 'waiting-for-current-user-response' as FriendRequest_Status,
+      };
+    }
+    return { status: friendRequest?.status || 'not-sent' };
   }
 }
