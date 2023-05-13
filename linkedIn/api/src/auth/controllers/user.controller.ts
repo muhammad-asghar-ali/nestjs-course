@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Get,
   HttpException,
@@ -6,6 +7,7 @@ import {
   Param,
   ParseUUIDPipe,
   Post,
+  Put,
   Request,
   Res,
   UploadedFile,
@@ -139,6 +141,25 @@ export class UserController {
     @Res() res,
   ): Promise<FriendRequestStatus> {
     const result = await this._svc.getFriendRequestStatus(receiverId, req.user);
+
+    return res.status(HttpStatus.OK).json({
+      status: 'OK',
+      message: 'Request Status',
+      data: result,
+    });
+  }
+
+  @UseGuards(JwtGuard)
+  @Put('friend-request/response/:friendRequestId')
+  public async respondToFriendRequest(
+    @Param('friendRequestId') friendRequestId: string,
+    @Body() statusResponse: FriendRequestStatus,
+    @Res() res,
+  ): Promise<FriendRequestStatus> {
+    const result = await this._svc.respondToFriendRequest(
+      statusResponse.status,
+      friendRequestId,
+    );
 
     return res.status(HttpStatus.OK).json({
       status: 'OK',

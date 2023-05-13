@@ -142,4 +142,28 @@ export class UserService {
     }
     return { status: friendRequest?.status || 'not-sent' };
   }
+
+  public async getFriendRequestUserById(
+    friendRequestId: string,
+  ): Promise<FriendRequest> {
+    const result = await this._repoFriendrequest.findOne({
+      where: [{ id: friendRequestId }],
+    });
+
+    return result;
+  }
+
+  public async respondToFriendRequest(
+    statusResponse: FriendRequest_Status,
+    friendRequestId: string,
+  ): Promise<FriendRequestStatus> {
+    const friendRequest = await this.getFriendRequestUserById(friendRequestId);
+
+    const frndRequest = await this._repoFriendrequest.save({
+      ...friendRequest,
+      status: statusResponse,
+    });
+
+    return frndRequest;
+  }
 }
