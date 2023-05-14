@@ -167,4 +167,19 @@ export class UserController {
       data: result,
     });
   }
+
+  @UseGuards(JwtGuard)
+  @Get('friend-request/me/received-requests')
+  public async getFriendRequestsFromRecipients(
+    @Request() req,
+    @Res() res,
+  ): Promise<FriendRequestStatus[]> {
+    const result = await this._svc.getFriendRequestsFromRecipients(req.user);
+
+    return res.status(HttpStatus.OK).json({
+      status: 'OK',
+      message: 'Request Status',
+      data: result,
+    });
+  }
 }
