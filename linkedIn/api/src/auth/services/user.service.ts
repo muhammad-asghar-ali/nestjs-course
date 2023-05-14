@@ -166,4 +166,15 @@ export class UserService {
 
     return frndRequest;
   }
+
+  public async getFriendRequestsFromRecipients(
+    currentUser: User,
+  ): Promise<FriendRequest[]> {
+    const q = await this._repoFriendrequest.find({
+      where: [{ receiver: currentUser }],
+      relations: ['receiver', 'creator'],
+    });
+
+    return q;
+  }
 }
