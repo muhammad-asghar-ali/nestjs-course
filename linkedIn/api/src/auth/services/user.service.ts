@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, UpdateResult } from 'typeorm';
+import { In, Repository, UpdateResult } from 'typeorm';
 import { FriendRequestEntity } from '../models/friend-request.entity';
 import {
   FriendRequest,
@@ -176,5 +176,28 @@ export class UserService {
     });
 
     return q;
+  }
+
+  public async getFriends(currentUser: User): Promise<User[]> {
+    const friends = await this._repoFriendrequest.find({
+      where: [
+        { creator: currentUser, status: 'accepted' },
+        { receiver: currentUser, status: 'accepted' },
+      ],
+      relations: ['creator', 'receiver'],
+    });
+
+    const userIds: string[] = [];
+
+    friends.forEach((friend: FriendRequest) => {
+      if (friend.creator.id === currentUser.id) {
+        userIds.push(friend.receiver.id);
+      } else if (friend.receiver.id === currentUser.id) {
+        userIds.push(friend.creator.id);
+      }
+    });
+
+    const users = await this._repo.findBy({ id: In([1, 2, 3]) });
+    return users;
   }
 }
