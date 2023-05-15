@@ -163,7 +163,7 @@ export class UserController {
 
     return res.status(HttpStatus.OK).json({
       status: 'OK',
-      message: 'Request Status',
+      message: 'Success',
       data: result,
     });
   }
@@ -178,7 +178,19 @@ export class UserController {
 
     return res.status(HttpStatus.OK).json({
       status: 'OK',
-      message: 'Request Status',
+      message: 'Success',
+      data: result,
+    });
+  }
+
+  @UseGuards(JwtGuard)
+  @Get('friends/my')
+  public async getFriends(@Request() req, @Res() res): Promise<User[]> {
+    const result = await this._svc.getFriends(req.user);
+
+    return res.status(HttpStatus.OK).json({
+      status: 'OK',
+      message: 'Success',
       data: result,
     });
   }
