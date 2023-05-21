@@ -24,6 +24,27 @@ export class TasksService {
     return task;
   }
 
+  public async getTasks(filterDto: GetTasksFilterDto): Promise<Task[]> {
+    const { status, search } = filterDto;
+
+    const query = this._repo.createQueryBuilder('tasks');
+
+    if (status) {
+      query.andWhere('tasks.status = :status', { status });
+    }
+
+    if (search) {
+      query.andWhere(
+        '(tasks.title LIKE :search OR tasks.desciption LIKE :search)',
+        { search: `%${search}%` },
+      );
+    }
+
+    const tasks = await query.getMany();
+
+    return tasks;
+  }
+
   public async createTask(createTask: CreateTaskDto): Promise<Task> {
     const { title, description } = createTask;
     const task = {
@@ -48,6 +69,9 @@ export class TasksService {
       .where('id = :id', { id })
       .execute();
 
+    if (result.affected === 0) {
+      throw new HttpException('no task found', HttpStatus.NOT_FOUND);
+    }
     return result;
   }
 
@@ -55,7 +79,7 @@ export class TasksService {
     const task = await this.getTaskById(id);
 
     task.status = status;
-
+    await this._repo.save(task);
     return task;
   }
 

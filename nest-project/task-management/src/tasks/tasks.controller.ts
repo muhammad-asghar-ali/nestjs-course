@@ -22,16 +22,12 @@ import { TasksService } from './tasks.service';
 export class TasksController {
   constructor(private readonly _svc: TasksService) {}
 
-  // @Get()
-  // public getAllTasks(
-  //   @Query(ValidationPipe) filterDto: GetTasksFilterDto,
-  // ): Task[] {
-  //   if (Object.keys(filterDto).length) {
-  //     return this._svc.getTasksWithFilter(filterDto);
-  //   } else {
-  //     return this._svc.getAllTasks();
-  //   }
-  // }
+  @Get()
+  public getAllTasks(
+    @Query(ValidationPipe) filterDto: GetTasksFilterDto,
+  ): Promise<Task[]> {
+    return this._svc.getTasks(filterDto);
+  }
 
   @Post()
   @UsePipes(ValidationPipe)
