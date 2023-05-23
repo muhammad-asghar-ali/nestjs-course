@@ -12,7 +12,9 @@ export class AuthController {
   }
 
   @Post('signin')
-  public async signIn(@Body(ValidationPipe) authDto: AuthDto): Promise<string> {
+  public async signIn(
+    @Body(ValidationPipe) authDto: AuthDto,
+  ): Promise<{ accessToken: string }> {
     return this._svc.signIn(authDto);
   }
 }
