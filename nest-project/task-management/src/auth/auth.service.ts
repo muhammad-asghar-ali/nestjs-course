@@ -9,12 +9,15 @@ import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { AuthDto } from './dto/auth.dto';
 import { UserEntity } from './user.entity';
+import { JwtService } from '@nestjs/jwt';
+import { JwtPayload } from './jwt-payload.interface';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(UserEntity)
     private _repo: Repository<UserEntity>,
+    private _jwt: JwtService,
   ) {}
 
   private async hashPassword(password: string, salt: string): Promise<string> {
@@ -52,12 +55,16 @@ export class AuthService {
     }
   }
 
-  public async signIn(authDto: AuthDto): Promise<string> {
+  public async signIn(authDto: AuthDto): Promise<{ accessToken: string }> {
     const username = await this.validatePassword(authDto);
 
     if (!username) {
       throw new UnauthorizedException('invalid credientials');
     }
-    return username;
+
+    const payload: JwtPayload = { username };
+
+    const accessToken = await this._jwt.sign(payload);
+    return { accessToken };
   }
 }
