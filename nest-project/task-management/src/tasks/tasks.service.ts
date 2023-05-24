@@ -1,6 +1,10 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { Task, TaskStatus } from './task.model';
-import { v4 as uuidv4 } from 'uuid';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { GetTasksFilterDto } from './dto/get-tasks-filter.tdo';
 import { TaskEntity } from './task.entity';
@@ -15,8 +19,8 @@ export class TasksService {
     private _repo: Repository<TaskEntity>,
   ) {}
 
-  public async getTaskById(id: string): Promise<Task> {
-    const task = await this._repo.findOne({ where: { id } });
+  public async getTaskById(id: string, user: UserEntity): Promise<Task> {
+    const task = await this._repo.findOne({ where: { id, userId: user.id } });
 
     if (!task) {
       throw new HttpException('no task found', HttpStatus.NOT_FOUND);
@@ -33,7 +37,7 @@ export class TasksService {
 
     const query = this._repo.createQueryBuilder('tasks');
 
-    query.where('task.userId = :userId', { userId: user.id });
+    query.where('tasks.userId = :userId', { userId: user.id });
 
     if (status) {
       query.andWhere('tasks.status = :status', { status });
@@ -46,40 +50,49 @@ export class TasksService {
       );
     }
 
-    const tasks = await query.getMany();
+    try {
+      const tasks = await query.getMany();
 
-    return tasks;
+      return tasks;
+    } catch (error) {
+      throw new InternalServerErrorException('something went wrong');
+    }
   }
 
   public async createTask(
     createTask: CreateTaskDto,
     user: UserEntity,
   ): Promise<Task> {
-    console.log(user);
     const { title, description } = createTask;
     const task = {
-      id: uuidv4(),
       title,
       description,
       user,
       userId: user.id,
       status: TaskStatus.OPEN,
     };
-    const result = await this._repo.save(task);
-    delete result.user;
-    return result;
+    try {
+      const result = await this._repo.save(task);
+      delete result.user;
+      return result;
+    } catch (error) {
+      throw new InternalServerErrorException('something went wrong');
+    }
   }
 
   public async getAllTasks(): Promise<Task[]> {
     return this._repo.find();
   }
 
-  public async deleteTaskById(id: string): Promise<DeleteResult> {
+  public async deleteTaskById(
+    id: string,
+    user: UserEntity,
+  ): Promise<DeleteResult> {
     const result = await this._repo
       .createQueryBuilder()
       .delete()
       .from(TaskEntity)
-      .where('id = :id', { id })
+      .where('id = :id', { id, userId: user.id })
       .execute();
 
     if (result.affected === 0) {
@@ -88,8 +101,12 @@ export class TasksService {
     return result;
   }
 
-  public async updateTaskStatus(id: string, status: TaskStatus): Promise<Task> {
-    const task = await this.getTaskById(id);
+  public async updateTaskStatus(
+    id: string,
+    status: TaskStatus,
+    user: UserEntity,
+  ): Promise<Task> {
+    const task = await this.getTaskById(id, user);
 
     task.status = status;
     await this._repo.save(task);
