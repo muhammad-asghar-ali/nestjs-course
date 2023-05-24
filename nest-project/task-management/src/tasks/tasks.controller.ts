@@ -8,13 +8,12 @@ import {
   Patch,
   Post,
   Query,
+  Req,
   UseGuards,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { GetUser } from 'src/auth/get-user.decorator';
-import { UserEntity } from 'src/auth/user.entity';
 import { DeleteResult } from 'typeorm';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { GetTasksFilterDto } from './dto/get-tasks-filter.tdo';
@@ -30,8 +29,9 @@ export class TasksController {
   @Get()
   public getAllTasks(
     @Query(ValidationPipe) filterDto: GetTasksFilterDto,
-    @GetUser() user: UserEntity,
+    @Req() req,
   ): Promise<Task[]> {
+    const user = req.user;
     return this._svc.getTasks(filterDto, user);
   }
 
@@ -39,31 +39,37 @@ export class TasksController {
   @UsePipes(ValidationPipe)
   public async createTask(
     @Body() createTask: CreateTaskDto,
-    @GetUser() user: UserEntity,
+    @Req() req,
   ): Promise<Task> {
-    console.log(user);
+    const user = req.user;
     return this._svc.createTask(createTask, user);
   }
 
   @Get(':id')
   public async getTaskById(
     @Param('id', new ParseUUIDPipe()) id: string,
+    @Req() req,
   ): Promise<Task> {
-    return this._svc.getTaskById(id);
+    const user = req.user;
+    return this._svc.getTaskById(id, user);
   }
 
   @Delete(':id')
   public async deleteTaskById(
     @Param('id', new ParseUUIDPipe()) id: string,
+    @Req() req,
   ): Promise<DeleteResult> {
-    return this._svc.deleteTaskById(id);
+    const user = req.user;
+    return this._svc.deleteTaskById(id, user);
   }
 
   @Patch(':id/status')
   public async updateTaskStatus(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body('status', TaskStatusValidationPipe) status: TaskStatus,
+    @Req() req,
   ): Promise<Task> {
-    return this._svc.updateTaskStatus(id, status);
+    const user = req.user;
+    return this._svc.updateTaskStatus(id, status, user);
   }
 }
