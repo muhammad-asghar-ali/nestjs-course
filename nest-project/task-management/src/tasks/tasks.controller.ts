@@ -8,9 +8,13 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+import { GetUser } from 'src/auth/get-user.decorator';
+import { UserEntity } from 'src/auth/user.entity';
 import { DeleteResult } from 'typeorm';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { GetTasksFilterDto } from './dto/get-tasks-filter.tdo';
@@ -19,20 +23,26 @@ import { Task, TaskStatus } from './task.model';
 import { TasksService } from './tasks.service';
 
 @Controller('tasks')
+@UseGuards(AuthGuard())
 export class TasksController {
   constructor(private readonly _svc: TasksService) {}
 
   @Get()
   public getAllTasks(
     @Query(ValidationPipe) filterDto: GetTasksFilterDto,
+    @GetUser() user: UserEntity,
   ): Promise<Task[]> {
-    return this._svc.getTasks(filterDto);
+    return this._svc.getTasks(filterDto, user);
   }
 
   @Post()
   @UsePipes(ValidationPipe)
-  public async createTask(@Body() createTask: CreateTaskDto): Promise<Task> {
-    return this._svc.createTask(createTask);
+  public async createTask(
+    @Body() createTask: CreateTaskDto,
+    @GetUser() user: UserEntity,
+  ): Promise<Task> {
+    console.log(user);
+    return this._svc.createTask(createTask, user);
   }
 
   @Get(':id')
